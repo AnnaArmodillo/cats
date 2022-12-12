@@ -47,7 +47,6 @@ body {
 
 .cats__wrapper__card .name {
     grid-column: span 4;
-    overflow:auto;
 }
 
 .cats__wrapper__card .photo {
@@ -64,7 +63,6 @@ body {
     grid-column: span 4;
     text-align: left;
     padding: 0 15px;
-    overflow:auto;
 }
 
 .cats__wrapper__card .age, .rating {
@@ -102,11 +100,14 @@ body {
 .modal-content {
     background-color: rgb(252, 172, 238);
 }
-  
-.close {
-    color:darkblue;
+
+.buttons {
     float: right;
-    font-size: 28px;
+    color: darkblue;
+}
+
+.close, .delete {
+    font-size: 20px;
     font-weight: bold;
 }
 
@@ -117,6 +118,7 @@ body {
 }
 
 .close:hover,
+.delete:hover,
 .save:hover:not(.disabled),
 .add:hover {
     color:darkmagenta;
@@ -132,8 +134,7 @@ body {
 
 .active .name {
     font-size: 1.8em;
-    height: 40px;
-    overflow:auto;
+    height: fit-content;
 }
 
 .active .photo {
@@ -150,7 +151,6 @@ body {
 }
 
 .active .description {
-    overflow:auto;
     height: fit-content;
 }
 
