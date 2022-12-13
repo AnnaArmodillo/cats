@@ -53,7 +53,7 @@ function checkIsValidName() {
 }
 
 btn.onclick = function() {
-  modal.innerHTML = `<span class="buttons"><span class="close"><i class="fa-solid fa-xmark"></i></span></span>
+  modal.innerHTML = `<span class="buttons"><span class="close" title="закрыть"><i class="fa-solid fa-xmark"></i></span></span>
   <span>Имя <span class="name" contenteditable="true" title="не более 50 символов">введите имя</span></span><br>
   <span>Фото <span class="photo" contenteditable="true">укажите ссылку на фото</span></span><br>
   <span>ID <span class="id" contenteditable="true" title="число, ID не должен повторяться">введите ID</span></span><br>
@@ -61,7 +61,7 @@ btn.onclick = function() {
   <span>Возраст <span class="age" contenteditable="true" title="положительное число">укажите возраст</span></span><br>
   <span>Рейтинг <span class="rating" contenteditable="true" title="число от 0 до 10">укажите рейтинг</span></span><br>
   <span>Описание <span class="description" contenteditable="true" title="не более 100 символов">добавьте описание</span></span><br>
-  <div class="save">Сохранить</div>`;
+  <div class="save">Сохранить</div><div class="message"></div>`;
   document.querySelector('.like_edit').addEventListener('click', toggleLike);
   document.querySelector(".close").addEventListener('click', hideModal);
   document.querySelector('.save').addEventListener('click', saveNewCat);
@@ -77,11 +77,14 @@ function hideModal() {
 
 function showThisCat(event) {
   event.stopPropagation();
-  modal.innerHTML = `<span class="buttons"><span class="close"><i class="fa-solid fa-xmark"></i></span> <span class="delete"><i class="fa-solid fa-trash"></i></span></span><div class="active">` + event.currentTarget.innerHTML + `</div>`;
+  modal.innerHTML = `<span class="buttons"><span class="close" title="закрыть"><i class="fa-solid fa-xmark"></i></span> <span class="delete" title="удалить"><i class="fa-solid fa-trash"></i></span> <span class="edit" title="редактировать"><i class="fa-solid fa-pen"></i></span></span><div class="active">` + event.currentTarget.innerHTML + `</div>`;
   let currentCat = event.currentTarget;
   document.querySelector('.close').addEventListener('click', hideModal);
   document.querySelector('.delete').addEventListener('click', () => {
     deleteCat(currentCat);
+  });
+  document.querySelector('.edit').addEventListener('click', () => {
+    editCat(currentCat);
   });
   modal.style.display = "block";
 }
@@ -91,11 +94,20 @@ function deleteCat(currentCat) {
   fetch(`https://cats.petiteweb.dev/api/single/AnnaArmodillo/delete/${id}`, {
   method: 'DELETE',
 })
-.then(res => res.json())
-.then(() => {
-  currentCat.remove();
-  modal.style.display = 'none';
+.then((response) => {
+  if (response.ok === true) {
+    currentCat.remove();
+    hideModal();
+  }
+  return response.json();
 })
+.then(result => {
+  modal.querySelector('.message').innerText = result.message;
+})
+}
+
+function editCat(currentCat) {
+  console.log(currentCat)
 }
 
 class Cats {
@@ -116,7 +128,7 @@ class Cats {
     <div class="like">${isFavorite(this)}</div>
     <div class="age">Возраст: ${this.age? this.age : 'не указан'} ${getUnitsOfAge(this.age)}</div>
     <div class="rating">Рейтинг: ${this.rate? this.rate : 'не указан'}</div>
-    <div class="description">${this.description}</div>`
+    <div class="description">${this.description}</div><div class="message"</div>`
   }
 }
 
@@ -137,7 +149,6 @@ function saveNewCat() {
   params.push(modal.querySelector('.age').innerText);
   params.push((modal.querySelector('.description').innerText).slice(0, 100));
   params.push(modal.querySelector('.photo').innerText);
-  hideModal();
   let newCat = new Cats(params);
   
   fetch('https://cats.petiteweb.dev/api/single/AnnaArmodillo/add/', {
@@ -148,15 +159,23 @@ function saveNewCat() {
     body: JSON.stringify(newCat)
   })
   .then((response) => {
-    response.json();
     if (response.ok === true) {
       const card = document.createElement('div');
       card.className = "cats__wrapper__card";
       card.innerHTML = newCat.createNewCat();
       wrapper.appendChild(card);
-      card.addEventListener('click', showThisCat);}
+      card.addEventListener('click', showThisCat);
+      hideModal();
+    }
+    return response.json();
+  })
+  .then(result => {
+    modal.querySelector('.message').innerText = result.message;
   })
 }
+
+
+
 
 
 

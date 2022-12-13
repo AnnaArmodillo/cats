@@ -106,7 +106,9 @@ body {
     color: darkblue;
 }
 
-.close, .delete {
+.close,
+.delete,
+.edit {
     font-size: 20px;
     font-weight: bold;
 }
@@ -119,6 +121,7 @@ body {
 
 .close:hover,
 .delete:hover,
+.edit:hover,
 .save:hover:not(.disabled),
 .add:hover {
     color:darkmagenta;
@@ -165,4 +168,8 @@ body {
 
 .like_edit:hover {
     cursor: pointer;
+}
+
+.message {
+    margin-top: 10px;
 }
