@@ -9,14 +9,10 @@ const actions = {
   like: 'like',
   update: 'update'
 }
-let newCat, params, cat, catID, catCard;
+let newCat, params, cat, catID, catCard, creatingCat, creatingData;
 
 function hideModal() {
   $modal.style.display = 'none';
-}
-
-function toggleLike(like) {
-  like.classList.toggle('favorite');
 }
 
 function isFavorite(cat) {
@@ -40,13 +36,25 @@ function getUnitsOfAge(age) {
 function checkIsValidName() {
   if (($modal.querySelector('.name').innerText).charCodeAt(0) === 160 || $modal.querySelector('.name').innerText === '') {
     document.querySelector('.save').classList.add('disabled');
-    document.querySelector('.save').title = 'имя не должно быть пустым или начинаться с пробела';
+    $modal.querySelector('.message').innerText = 'Имя не должно быть пустым или начинаться с пробела';
     document.querySelector('.save').removeAttribute('data-action');
   } else {
     document.querySelector('.save').classList.remove('disabled');
-    document.querySelector('.save').title = '';
+    $modal.querySelector('.message').innerText = '';
     document.querySelector('.save').dataset.action = 'save';
   }
+}
+
+function checkIsUniqueID(id) {
+  const storageKeys = [];
+  for (let i = 0, length = localStorage.length; i < length; i++) {
+    const key = localStorage.key(i);
+    storageKeys.push(key)
+  }
+  if (storageKeys.includes(String(id))) {
+  return false;
+  }
+  return true;
 }
 
 class Cats {
@@ -85,6 +93,7 @@ function deleteCat(catID, catCard) {
     .then((response) => {
       if (response.ok === true) {
         catCard.remove();
+        localStorage.removeItem(catID);
         hideModal();
       }
       return response.json();
@@ -94,11 +103,20 @@ function deleteCat(catID, catCard) {
     });
 }
 
+function updateStorage() {
+  getParams($modal);
+  creatingCat = new Cats(params);
+  localStorage.setItem('creating', JSON.stringify(creatingCat));
+}
+
 document.addEventListener('click', (event) => {
   if (event.target.closest('[data-action]') && event.target.closest('[data-action]').dataset.action === actions.close) {
     hideModal();
   } else if (event.target.closest('[data-action]') && event.target.closest('[data-action]').dataset.action === actions.like) {
-    toggleLike(event.target.closest('.fa-heart'));
+    event.target.closest('.fa-heart').classList.toggle('favorite');
+    if (!event.target.closest('.active')) {
+      updateStorage();
+    }
   } else if (event.target.closest('[data-action]') && event.target.closest('[data-action]').dataset.action === actions.delete) {
     cat = event.target.closest('[data-catid]');
     catID = event.target.closest('[data-catid]').dataset.catid;
@@ -124,6 +142,7 @@ fetch('https://cats.petiteweb.dev/api/single/AnnaArmodillo/show/')
       params = Object.values(cat);
       newCat = new Cats(params);
       $wrapper.insertAdjacentHTML('beforeend', newCat.createNewCat());
+      localStorage.setItem(newCat.id, JSON.stringify(newCat));
     });
   })
   .then(() => {
@@ -134,17 +153,28 @@ fetch('https://cats.petiteweb.dev/api/single/AnnaArmodillo/show/')
 
 
 $btnAdd.onclick = function () {
+  if (localStorage.getItem('creating')) {
+    creatingData = JSON.parse(localStorage.getItem('creating'));
+  } else {
+    creatingData = {};
+    localStorage.setItem('creating', JSON.stringify(creatingData));
+  }
   $modal.innerHTML = `<span class="buttons"><span class="close" title="закрыть" data-action=${actions.close}><i class="fa-solid fa-xmark"></i></span></span>
-  <span>Имя: <span class="name" contenteditable="true" title="не более 50 символов">введите имя</span></span><br>
-  <span>Фото <span class="photo" contenteditable="true">укажите ссылку на фото</span></span><br>
-  <span>ID: <span class="id" contenteditable="true" title="число, ID не должен повторяться">введите ID</span></span><br>
-  <span class="like_edit" data-action=${actions.like}><i class="fa-solid fa-heart like_edit"></i></span><br>
-  <span>Возраст: <span class="age" contenteditable="true" title="положительное число">укажите возраст</span></span><br>
-  <span>Рейтинг: <span class="rating" contenteditable="true" title="число от 0 до 10">укажите рейтинг</span></span><br>
-  <span>Описание: <span class="description" contenteditable="true" title="не более 100 символов">добавьте описание</span></span><br>
+  <span>Имя: <span class="name" contenteditable="true" title="не более 50 символов">${creatingData.name ? creatingData.name : "введите имя"}</span></span><br>
+  <span>Фото <span class="photo" contenteditable="true">${creatingData.image ? creatingData.image : "укажите ссылку на фото"}</span></span><br>
+  <span>ID: <span class="id" contenteditable="true" title="число, ID не должен повторяться">${creatingData.id ? creatingData.id : "введите ID"}</span></span><br>
+  <span class="like_edit" data-action=${actions.like}>${isFavorite(creatingData)}</span><br>
+  <span>Возраст: <span class="age" contenteditable="true" title="положительное число">${creatingData.age ? creatingData.age : "укажите возраст"}</span></span><br>
+  <span>Рейтинг: <span class="rating" contenteditable="true" title="число от 0 до 10">${creatingData.rate ? creatingData.rate : "укажите рейтинг"}</span></span><br>
+  <span>Описание: <span class="description" contenteditable="true" title="не более 100 символов">${creatingData.description ? creatingData.description : "добавьте описание"}</span></span><br>
   <div class="save" data-action=${actions.save}>Сохранить</div><div class="message"></div>`;
   $modal.querySelector('.name').addEventListener('input', checkIsValidName);
   $modal.style.display = 'block';
+  $modal.addEventListener('input', () => {
+    if (!event.target.closest('.active')) {
+    updateStorage();
+    }
+  });
 };
 
 function getParams(cat) {
@@ -167,7 +197,7 @@ function editCat(cat) {
   $modal.innerHTML = `<div><span class="buttons"><span class="close" title="закрыть" data-action=${actions.close}><i class="fa-solid fa-xmark"></i></span></div><div class="active"><span class="name">${cat.name}</span><br>
   <span>Фото <span class="photo" contenteditable="true">${cat.image}</span></span><br>
   <span>ID: <span class="id">${cat.id}</span></span><br>
-  <span class="like_edit" data-action=${actions.like}>${isFavorite(this)}</span><br>
+  <span class="like_edit" data-action=${actions.like}>${isFavorite(cat)}</span><br>
   <span>Возраст: <span class="age" contenteditable="true" title="положительное число">${cat.age ? cat.age : 'укажите возраст'}</span> <span>${getUnitsOfAge(cat.age)}</span></span><br>
   <span>Рейтинг: <span class="rating" contenteditable="true" title="число от 0 до 10">${cat.rate ? cat.rate : 'укажите рейтинг'}</span></span><br>
   <span>Описание: <span class="description" contenteditable="true" title="не более 100 символов">${cat.description}</span></span><br>
@@ -178,6 +208,9 @@ function editCat(cat) {
 function saveCat($modal) {
   getParams($modal);
   cat = new Cats(params);
+  if (checkIsUniqueID(cat.id) === false) {
+    $modal.querySelector('.message').innerText = 'Такой ID уже используется'
+  } else {
   fetch('https://cats.petiteweb.dev/api/single/AnnaArmodillo/add/', {
     method: 'POST',
     headers: {
@@ -188,6 +221,8 @@ function saveCat($modal) {
     .then((response) => {
       if (response.ok === true) {
         $wrapper.insertAdjacentHTML('beforeend', cat.createNewCat());
+        localStorage.setItem(cat.id, JSON.stringify(cat));
+        localStorage.setItem('creating', '');
         $wrapper.lastElementChild.addEventListener('click', cat.showThisCat);
         hideModal();
       }
@@ -196,6 +231,7 @@ function saveCat($modal) {
     .then((result) => {
       $modal.querySelector('.message').innerText = result.message;
     });
+  }
 }
 
 function updateCat($modal) {
@@ -212,6 +248,7 @@ function updateCat($modal) {
     if (response.ok === true) {
       catCard = document.querySelector(`.cats__wrapper__card[data-catid="${catID}"]`);
       catCard.outerHTML = `${cat.createNewCat()}`;
+      localStorage.setItem(catID, JSON.stringify(cat));
       document.querySelector(`.cats__wrapper__card[data-catid="${catID}"]`).addEventListener('click', cat.showThisCat);
       hideModal();
     }
