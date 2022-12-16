@@ -204,7 +204,7 @@ function editCat(cat) {
   <span>ID: <span class="id">${cat.id}</span></span><br>
   <span class="like_edit" data-action=${actions.like}>${isFavorite(cat)}</span><br>
   <span>Возраст: <span class="age" contenteditable="true" title="положительное число">${cat.age ? cat.age : 'укажите возраст'}</span> <span>${getUnitsOfAge(cat.age)}</span></span><br>
-  <span>Рейтинг: <span class="rating" contenteditable="true" title="число от 0 до 10">${cat.rate ? cat.rate : 'укажите рейтинг'}</span></span><br>
+  <span>Рейтинг: <span class="rating" contenteditable="true" title="число от 1 до 10">${cat.rate ? cat.rate : 'укажите рейтинг'}</span></span><br>
   <span>Описание: <span class="description" contenteditable="true" title="не более 100 символов">${cat.description}</span></span><br>
   <div class="save" data-action=${actions.save}>Сохранить</div><div class="message"></div>`;
   document.querySelector('[data-action="save"]').dataset.action = `${actions.update}`;
