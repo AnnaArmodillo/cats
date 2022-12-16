@@ -186,7 +186,11 @@ function getParams(cat) {
   } else {
     params.push(false);
   }
-  params.push(cat.querySelector('span.rating').innerText);
+  if (+(cat.querySelector('span.rating').innerText) >= 1 && +(cat.querySelector('span.rating').innerText) <= 10) {
+    params.push(cat.querySelector('span.rating').innerText);
+  } else {
+    $modal.querySelector('.message').innerText = 'Рейтинг должен быть от 1 до 10';
+  }
   params.push(cat.querySelector('span.age').innerText);
   params.push((cat.querySelector('.description').innerText).slice(0, 100));
   params.push(cat.querySelector('.photo img')?.src || cat.querySelector('.photo').innerText);
