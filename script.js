@@ -190,6 +190,7 @@ function getParams(cat) {
     params.push(cat.querySelector('span.rating').innerText);
   } else {
     $modal.querySelector('.message').innerText = 'Рейтинг должен быть от 1 до 10';
+    params.push('');
   }
   params.push(cat.querySelector('span.age').innerText);
   params.push((cat.querySelector('.description').innerText).slice(0, 100));
