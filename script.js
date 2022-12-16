@@ -165,7 +165,7 @@ $btnAdd.onclick = function () {
   <span>ID: <span class="id" contenteditable="true" title="число, ID не должен повторяться">${creatingData.id ? creatingData.id : "введите ID"}</span></span><br>
   <span class="like_edit" data-action=${actions.like}>${isFavorite(creatingData)}</span><br>
   <span>Возраст: <span class="age" contenteditable="true" title="положительное число">${creatingData.age ? creatingData.age : "укажите возраст"}</span></span><br>
-  <span>Рейтинг: <span class="rating" contenteditable="true" title="число от 0 до 10">${creatingData.rate ? creatingData.rate : "укажите рейтинг"}</span></span><br>
+  <span>Рейтинг: <span class="rating" contenteditable="true" title="число от 1 до 10">${creatingData.rate ? creatingData.rate : "укажите рейтинг"}</span></span><br>
   <span>Описание: <span class="description" contenteditable="true" title="не более 100 символов">${creatingData.description ? creatingData.description : "добавьте описание"}</span></span><br>
   <div class="save" data-action=${actions.save}>Сохранить</div><div class="message"></div>`;
   $modal.querySelector('.name').addEventListener('input', checkIsValidName);
