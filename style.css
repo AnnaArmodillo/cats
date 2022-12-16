@@ -173,3 +173,19 @@ body {
 .message {
     margin-top: 10px;
 }
+
+@media (max-width: 1024px) {
+    .modal {
+        width: 80vw;
+        left: calc(50% - 40vw);
+        top: 15%;
+    }
+
+    .active {
+        width: calc(100% - 14px);
+    }
+
+    .cats__wrapper__card {
+        gap: 2px;
+    }
+}
