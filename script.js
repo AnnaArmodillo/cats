@@ -11,6 +11,8 @@ const actions = {
 }
 let newCat, params, cat, catID, catCard, creatingCat, creatingData;
 
+clearStorage();
+
 function hideModal() {
   $modal.style.display = 'none';
 }
@@ -45,12 +47,26 @@ function checkIsValidName() {
   }
 }
 
-function checkIsUniqueID(id) {
-  const storageKeys = [];
+function clearStorage() {
+  getAllID();
+  storageKeys.forEach(key => {
+    if (key !== 'creating') {
+    localStorage.removeItem(`${key}`);
+    }
+  })
+}
+
+function getAllID() {
+  storageKeys = [];
   for (let i = 0, length = localStorage.length; i < length; i++) {
     const key = localStorage.key(i);
-    storageKeys.push(key)
+    storageKeys.push(key);
   }
+  return storageKeys;
+}
+
+function checkIsUniqueID(id) {
+  getAllID();
   if (storageKeys.includes(String(id))) {
   return false;
   }
